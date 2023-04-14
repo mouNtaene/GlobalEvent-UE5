@@ -3,210 +3,104 @@
 
 #include "GlobalEventBFL.h"
 
-bool UGlobalEventBFL::WildcardToBool(const FGEWildcardProperty& InProp, bool& OutBool)
+template<typename FFieldType,typename T> 
+bool GetWildCardValue(const FGEWildcardProperty& InProp, T& Value, const bool PruneWarning = false)
 {
 	if (InProp.Property == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildcardToBool InProp is a nullptr"));
+		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::Wildcard Property is a nullptr")); 
 		return false;
 	}
-
-	FBoolProperty* Property = CastField<FBoolProperty>(InProp.Property.Get());
+	FFieldType* Property = CastField<FFieldType>(InProp.Property.Get());
 	if (Property)
 	{
-		OutBool = Property->GetPropertyValue(InProp.PropertyPtr);
+		Value = Property->GetPropertyValue(InProp.PropertyPtr);
 		return true;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildcardToBool %s is not a bool."), *InProp.Property->GetName());
+		if (!PruneWarning) {
+			UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::Wildcard Property %s differ in type, connect right type!."), *InProp.Property->GetName());
+		}
 		return false;
 	}
+}
+
+
+bool UGlobalEventBFL::WildcardToBool(const FGEWildcardProperty& InProp, bool& OutBool)
+{	
+	return GetWildCardValue<FBoolProperty>(InProp, OutBool);
 }
 
 bool UGlobalEventBFL::WildcardToInt(const FGEWildcardProperty& InProp, int32& OutInt)
 {
-	if (InProp.Property == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildcardToInt InProp is a nullptr"));
-		return false;
-	}
-
-	FIntProperty* Property = CastField<FIntProperty>(InProp.Property.Get());
-	if (Property)
-	{
-		OutInt = Property->GetPropertyValue(InProp.PropertyPtr);
-		return true;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildcardToInt %s is not a int."), *InProp.Property->GetName());
-		return false;
-	}
+	return GetWildCardValue<FIntProperty>(InProp, OutInt);
 }
 
 bool UGlobalEventBFL::WildcardToFloat(const FGEWildcardProperty& InProp, float& OutFloat)
 {
-	if (InProp.Property == nullptr)
+	const bool IsFloat = GetWildCardValue<FFloatProperty>(InProp, OutFloat,true); // handle warnin TODO: Add Fname->FString conversion?
+	if (IsFloat)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildcardToFloat InProp is a nullptr"));
-		return false;
-	}
-	
-	FFloatProperty* Property = CastField<FFloatProperty>(InProp.Property.Get());
-
-	if (Property)
-	{
-		OutFloat = Property->GetPropertyValue(InProp.PropertyPtr);
 		return true;
 	}
 	else
 	{
-		FDoubleProperty* DoubleProperty = CastField<FDoubleProperty>(InProp.Property.Get());
-		if (DoubleProperty)
-		{
-			double OutDouble = DoubleProperty->GetPropertyValue(InProp.PropertyPtr);
-			OutFloat = (float)OutDouble;
-			return true;
-		}
-		else {
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildcardToFloat %s is not a float."), *InProp.Property->GetName());
-		return false;
-		}
+		//UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildcardToFloat %s is actually double."), *InProp.Property->GetName());  need to put warning after result, additional bool for nothing
+		return (float)GetWildCardValue<FDoubleProperty>(InProp, OutFloat); //typecast to float..
 	}
 }
 
 bool UGlobalEventBFL::WildcardToDouble(const FGEWildcardProperty& InProp, double& OutDouble)
 {
-	if (InProp.Property == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildcardToDouble InProp is a nullptr"));
-		return false;
-	}
-	FDoubleProperty* Property = CastField<FDoubleProperty>(InProp.Property.Get());
-	if (Property)
-	{
-		OutDouble = Property->GetPropertyValue(InProp.PropertyPtr);
-		return true;
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildcardToDouble %s is not a double."), *InProp.Property->GetName());
-		return false;
-	}
+	return GetWildCardValue<FDoubleProperty>(InProp, OutDouble);
 }
 
 bool UGlobalEventBFL::WildcardToName(const FGEWildcardProperty& InProp, FName& OutName)
 {
-	if (InProp.Property == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToName InProp is a nullptr"));
-		return false;
-	}
+	return GetWildCardValue<FNameProperty>(InProp, OutName);
+}
 
-	FNameProperty* Property = CastField<FNameProperty>(InProp.Property.Get());
-	if (Property)
-	{
-		OutName = Property->GetPropertyValue(InProp.PropertyPtr);
-		return true;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToName %s is not an FName."), *InProp.Property->GetName());
-		return false;
-	}
+
+bool UGlobalEventBFL::WildcardToByte(const FGEWildcardProperty& InProp, uint8& OutByte)
+{
+	return GetWildCardValue<FByteProperty>(InProp, OutByte);
+}
+
+bool UGlobalEventBFL::WildcardToString(const FGEWildcardProperty& InProp, FString& OutString)
+{
+	return GetWildCardValue<FStrProperty>(InProp, OutString);
+}
+
+bool UGlobalEventBFL::WildcardToObject(const FGEWildcardProperty& InProp, UObject*& OutObject)
+{
+	return GetWildCardValue<FObjectProperty>(InProp, OutObject);
 }
 
 bool UGlobalEventBFL::WildcardToVector(const FGEWildcardProperty& InProp, FVector& OutVector)
 {
 	if (InProp.Property == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToVector InProp is a nullptr"));
+		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToVector Property is a nullptr"));
 		return false;
 	}
 
 	FStructProperty* Property = CastField<FStructProperty>(InProp.Property.Get());
-	
+
 	if (Property && Property->Struct == TBaseStructure<FVector>::Get())
 	{
-		
+
 		Property->CopyCompleteValue(&OutVector, InProp.PropertyPtr);
-		return true; 
+		return true;
 	}
 	return false;
-}
-
-bool UGlobalEventBFL::WildcardToByte(const FGEWildcardProperty& InProp, uint8& OutByte)
-{
-	if (InProp.Property == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToByte InProp is a nullptr"));
-		return false;
-	}
-
-	FByteProperty* Property = CastField<FByteProperty>(InProp.Property.Get());
-
-	if (Property)
-	{
-		OutByte = Property->GetPropertyValue(InProp.PropertyPtr);
-		return true;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToByte %s is not an byte."), *InProp.Property->GetName());
-		return false;
-
-	}
-}
-
-bool UGlobalEventBFL::WildcardToString(const FGEWildcardProperty& InProp, FString& OutString)
-{
-	
-	if (InProp.Property == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToString InProp is a nullptr"));
-		return false;
-	}
-
-	FStrProperty* Property = CastField<FStrProperty>(InProp.Property.Get());
-	if (Property)
-	{
-		OutString = Property->GetPropertyValue(InProp.PropertyPtr);
-		return true;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToString %s is not an string."), *InProp.Property->GetName());
-		return false;
-	}
-	
-}
-
-bool UGlobalEventBFL::WildcardToObject(const FGEWildcardProperty& InProp, UObject*& OutObject)
-{
-	if (InProp.Property == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToObject InProp is a nullptr"));
-		return false;
-	}
-
-	FObjectProperty* Property = CastField<FObjectProperty>(InProp.Property.Get());
-	if (Property)
-	{
-		OutObject = Property->GetPropertyValue(InProp.PropertyPtr);
-		return true;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToObject %s is not an object."), *InProp.Property->GetName());
-		return false;
-	}
 }
 
 bool UGlobalEventBFL::WildcardToArray(const FGEWildcardProperty& InProp, TArray<UProperty*>& OutArray)
 {
 	if (InProp.Property == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToArray InProp is a nullptr"));
+		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::WildCardToArray Property is a nullptr"));
 		return false;
 	}
 
@@ -225,7 +119,7 @@ bool UGlobalEventBFL::Generic_WildcardToStruct(const FGEWildcardProperty& InProp
 {
 	if (InProp.Property == nullptr || OutProp.Property == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::HandlePropToStruct InProp or OutProp is a nullptr"));
+		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::HandlePropToStruct InProperty or OutProperty is a nullptr"));
 		return false;
 	}
 
@@ -239,117 +133,14 @@ bool UGlobalEventBFL::Generic_WildcardToStruct(const FGEWildcardProperty& InProp
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("UGlobalEventBFL::HandlePropToStruct Structs are different types"));
 		return false;
 	}
 }
 
 
-//bool UGlobalEventBFL::GetBoolByName(UObject* Target, FName VarName, bool& OutBool)
-//{
-//	if (Target) //make sure Target was set in blueprints. 
-//	{
-//		FBoolProperty* Property = FindFProperty<FBoolProperty>(Target->GetClass(), VarName);  // try to find float property in Target named VarName
-//		if (Property) //if we found variable
-//		{
-//			OutBool = Property->GetPropertyValue_InContainer(Target);
-//			return true; // we can return
-//		}
-//	}
-//	return false; // we haven't found variable return false
-//}
-//
-//bool UGlobalEventBFL::GetFloatByName(UObject* Target, FName VarName, float& OutFloat)
-//{
-//	if (Target)
-//	{
-//		FFloatProperty* Property = FindFProperty<FFloatProperty>(Target->GetClass(), VarName);  // try to find float property in Target named VarName
-//		if (Property)
-//		{
-//			OutFloat = Property->GetPropertyValue_InContainer(Target);
-//			return true; // we can return
-//		}
-//		else
-//		{
-//			FDoubleProperty* DoubleProperty = FindFProperty<FDoubleProperty>(Target->GetClass(), VarName); //check double in case it's not float
-//			if (DoubleProperty)
-//			{
-//				double OutDouble = DoubleProperty->GetPropertyValue_InContainer(Target);
-//				OutFloat = (float)OutDouble;
-//				return true;
-//			}
-//			else
-//			{
-//				return false;
-//			}
-//		}
-//	}
-//	return false;
-//}
-//
-//bool UGlobalEventBFL::GetIntByName(UObject* Target, FName VarName, int& OutInt)
-//{
-//	if (Target)
-//	{
-//		FIntProperty* Property = FindFProperty<FIntProperty>(Target->GetClass(), VarName);  // try to find float property in Target named VarName
-//		if (Property)
-//		{
-//			OutInt = Property->GetPropertyValue_InContainer(Target);
-//			return true; // we can return
-//		}
-//	}
-//	return false;
-//}
-//
-//bool UGlobalEventBFL::CheckNameVarByName(UObject* Target, FName VarName)
-//{
-//	if (Target)
-//	{
-//		FNameProperty* Property = FindFProperty<FNameProperty>(Target->GetClass(), VarName);  // try to find float property in Target named VarName
-//		if (Property)
-//		{
-//			return true; // we can return
-//		}
-//	}
-//
-//	return false;
-//}
-//
-//bool UGlobalEventBFL::GetVectorByName(UObject* Target, FName VarName, FVector& OutVector)
-//{
-//	if (Target)
-//	{
-//		FStructProperty* Property = FindFProperty<FStructProperty>(Target->GetClass(), VarName); 
-//
-//		if (Property && Property->Struct == TBaseStructure<FVector>::Get())
-//		{
-//			void* StructAddress = Property->ContainerPtrToValuePtr<void>(Target);
-//			if (StructAddress)
-//			{
-//				Property->CopyCompleteValue(&OutVector, StructAddress);
-//				return true; // we can return
-//			}
-//		}
-//	}
-//	return false;
-//}
-//
-//bool UGlobalEventBFL::SetBoolByName(UObject* Target, FName VarName, bool NewValue, bool& OutBool)
-//{
-//	
-//	if (Target) 
-//	{
-//		FBoolProperty* Property = FindFProperty<FBoolProperty>(Target->GetClass(), VarName);
-//		if (Property) 
-//		{
-//			Property->SetPropertyValue_InContainer(Target,NewValue);
-//			OutBool = Property->GetPropertyValue_InContainer(Target); // sanity check i guess
-//			return true; 
-//		}
-//	}
-//	return false; 
-//
-//}
 
+/* Deffinitions to access variables and functions */
 
 bool UGlobalEventBFL::Generic_AccessVariableByName(UObject* OwnerObject, FName PropertyName, void* SrcPropertyAddr, FProperty* SrcProperty, bool bSetter)
 {
@@ -378,7 +169,7 @@ bool UGlobalEventBFL::CallFunctionByName(UObject* Object, FName VariableName)
 {
 	if (Object)
 	{
-		UClass* OwnerClass = Object->GetClass();
+		const UClass* OwnerClass = Object->GetClass();
 		if (OwnerClass)
 		{
 			UFunction* OwnerFunc = OwnerClass->FindFunctionByName(VariableName);
@@ -392,12 +183,11 @@ bool UGlobalEventBFL::CallFunctionByName(UObject* Object, FName VariableName)
 	return false;
 }
 
-
 bool UGlobalEventBFL::Generic_CallFunctionByNameWithParams(UObject* OwnerObject, FName PropertyName, FProperty* SrcProperty, void* SrcPtr)
 {
 	if (OwnerObject)
 	{
-		UClass* OwnerClass = OwnerObject->GetClass();
+		const UClass* OwnerClass = OwnerObject->GetClass();
 		if (OwnerClass)
 		{
 			UFunction* OwnerFunc = OwnerClass->FindFunctionByName(PropertyName);

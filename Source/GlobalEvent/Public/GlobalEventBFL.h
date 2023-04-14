@@ -14,7 +14,7 @@ class GLOBALEVENT_API UGlobalEventBFL : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	/* Supported: bool, int, float(double), name, string, byte(convert enum to byte or int), struct, object  */
+	/* Supported types: bool, int, float(double), name, string, byte(convert enum to byte or int), struct, object  */
 	UFUNCTION(BlueprintPure, CustomThunk, Category = "GlobalEvent|Conversion", meta=(CustomStructureParam = "Data", AutoCreateRefTerm = "Data"))
 			static FGEWildcardProperty ConvertToWildcard(TFieldPath<FProperty> Data);
 
@@ -59,7 +59,7 @@ public:
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "To Integer (Wildcard Property)"), Category = "GlobalEvent|Conversion")
 		static bool WildcardToInt(const FGEWildcardProperty& InProp, int32& OutInt);
 
-	/** Convert wildcard property into a literal float (may be double with conversion to float) */
+	/** Convert wildcard property into a literal float (accept doubles with conversion to float) */
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "To Float (Wildcard Property)"), Category = "GlobalEvent|Conversion")
 		static bool WildcardToFloat(const FGEWildcardProperty& InProp, float& OutFloat);
 	
@@ -124,35 +124,8 @@ private:
 	static bool Generic_WildcardToStruct(const FGEWildcardProperty& InProp, FGEWildcardProperty& OutProp);
 	
 public:
-	//	/* VARIABLES FROM OBJECT */
-
-	///* Get Variables */
-
-	///** Get  boolean value from object  */
-	//UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Bool from Object"), Category = "GlobalEvent|Variables")
-	//	static bool GetBoolByName(UObject* Target, FName VarName, bool& OutBool);
-
-	///** Get float value from object  */
-	//UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Float from Object"), Category = "GlobalEvent|Variables")
-	//	static bool GetFloatByName(UObject* Target, FName VarName, float& OutFloat);
-
-	///** Get integer value from object  */
-	//UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Int from Object"), Category = "GlobalEvent|Variables")
-	//	static bool GetIntByName(UObject* Target, FName VarName, int& OutInt);
-
-	///** Get integer value from object */
-	//UFUNCTION(BlueprintPure, meta = (DisplayName = "Check name in Object"), Category = "GlobalEvent|Variables")
-	//	static bool CheckNameVarByName(UObject* Target, FName VarName);
-
-	///** Get integer value from object  */
-	//UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Vector from Object"), Category = "GlobalEvent|Variables")
-	//	static bool GetVectorByName(UObject* Target, FName VarName, FVector& OutVector);
-
-	///* Set Variables */
-
-	
-
-
+		
+	/* VARIABLES FROM OBJECT */
 
 	UFUNCTION(BlueprintPure, CustomThunk, Category = "GlobalEvent|Variables", meta = (CustomStructureParam = "Value", AutoCreateRefTerm = "Value", DisplayName = "Get Variable By Name"))
 		static bool GetVariableByName(UObject* Object, FName VariableName, int32& Value);
