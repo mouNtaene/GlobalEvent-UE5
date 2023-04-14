@@ -1,2 +1,4 @@
-# GlobalEvent
- Subsystem based event handler for ease communication in Unreal Engine projects
+# Global Event Subsystem 
+ 
+Todo: Make examples, create description.
+
