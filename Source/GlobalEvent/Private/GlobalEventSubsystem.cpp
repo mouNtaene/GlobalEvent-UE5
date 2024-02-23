@@ -98,19 +98,22 @@ void UGlobalEventSubsystem::UnBindGlobalEventByName(FName EventName, const FOnGl
 	}
 }
 
-// for debug purpose 
-#if WITH_EDITOR
 TArray<FName> UGlobalEventSubsystem::GetAllGlobalEventNames()
 {
 	TArray<FName> Events;
+#if WITH_EDITOR
 	GlobalEventsByName.GenerateKeyArray(Events);
+	return Events;
+#endif
 	return Events;
 }
 
 TArray<FName> UGlobalEventSubsystem::GetAllGlobalEventNamesWithData()
 {
 	TArray<FName> Events;
+#if WITH_EDITOR
 	GlobalEventsByNameWithData.GenerateKeyArray(Events);
+#endif
 	return Events;
 }
-#endif
+

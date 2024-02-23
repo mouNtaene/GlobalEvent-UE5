@@ -76,6 +76,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "EventSystem")
 		void UnBindGlobalEventByName(FName EventName, const FOnGlobalEvent& Event);
 
+
 	/* Helper function for debug purpose, to get all current events without data.
 	*/
 	UFUNCTION(BlueprintPure, Category = "EventSystem|Debug")
@@ -85,4 +86,5 @@ public:
 	*/
 	UFUNCTION(BlueprintPure, Category = "EventSystem|Debug")
 		TArray<FName> GetAllGlobalEventNamesWithData();
+
 };
